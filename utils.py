@@ -1,6 +1,6 @@
 import requests
 import json
-from app import app
+from flask import current_app as app
 
 def send_request(url, data, method, headers):
     try:
@@ -22,13 +22,13 @@ def get_token():
     url = "https://auth.reloadly.com/oauth/token"
 
     payload = json.dumps({
-    "client_id": app.config['RELOADLY_CLIENT_ID'],
-    "client_secret": app.config['RELOADLY_CLIENT_SECRET'],
-    "grant_type": "client_credentials",
-    "audience": "https://topups.reloadly.com"
-    })
+        "client_id": app.config['RELOADLY_CLIENT_ID'],
+        "client_secret": app.config['RELOADLY_CLIENT_SECRET'],
+        "grant_type": "client_credentials",
+        "audience": "https://topups.reloadly.com"
+        })
     headers = {
-    'Content-Type': 'application/json'
+        'Content-Type': 'application/json'
     }
     response = send_request(url, payload, "POST", headers)
     if response['data']:
@@ -40,27 +40,27 @@ def get_token():
 def topup(amt, phone_number, my_number):
     url = f"{app.config['RELOADLY_API_URL']}/topups"
     payload = json.dumps({
-    "operatorId": "685",
-    "amount": amt,
-    "useLocalAmount": False,
-    "customIdentifier": "This is example identifier 092",
-    "recipientPhone": {
-        "countryCode": "NG",
-        "number": phone_number
-    },
-    "senderPhone": {
-        "countryCode": "NG",
-        "number": my_number
-    }
+        "operatorId": "685",
+        "amount": amt,
+        "useLocalAmount": False,
+        "customIdentifier": "This is example identifier 092",
+        "recipientPhone": {
+            "countryCode": "NG",
+            "number": phone_number
+        },
+        "senderPhone": {
+            "countryCode": "NG",
+            "number": my_number
+        }
     })
     access_token = get_token()['access_token'] if get_token() else None
     if not access_token:
         print("No access token")
         exit()
     headers = {
-    'Authorization': f'Bearer {access_token}',
-    'Accept': 'application/com.reloadly.topups-v1+json',
-    'Content-Type': 'application/json'
+        'Authorization': f'Bearer {access_token}',
+        'Accept': 'application/com.reloadly.topups-v1+json',
+        'Content-Type': 'application/json'
     }
 
     return send_request(url, payload, "POST", headers)
